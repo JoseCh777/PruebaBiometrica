@@ -121,7 +121,7 @@ public class Main extends JFrame {
         try {
             DPFPFeatureSet features = extraerFeatures(muestra, DPFPDataPurpose.DATA_PURPOSE_ENROLLMENT);
             if (features == null) {
-                setEstado("⚠ Calidad baja, intenta de nuevo", WARN);
+                setEstado("[!] Calidad baja, intenta de nuevo", WARN);
                 return;
             }
 
@@ -220,7 +220,7 @@ public class Main extends JFrame {
         if (ok == JOptionPane.YES_OPTION) {
             usuarios.remove(idx);
             actualizarLista();
-            setEstado("🗑 Usuario eliminado: " + u.getNombre(), TEXT_MUTED);
+            setEstado("[X] Usuario eliminado: " + u.getNombre(), TEXT_MUTED);
         }
     }
 
@@ -252,7 +252,7 @@ public class Main extends JFrame {
         if (enrollment == null) return;
         int completadas = 4 - enrollment.getFeaturesNeeded();
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < 4; i++) sb.append(i < completadas ? "🟢 " : "⚪ ");
+        for (int i = 0; i < 4; i++) sb.append(i < completadas ? "[OK] " : "[--] ");
         lblMuestras.setText(sb.toString());
     }
 
@@ -323,7 +323,7 @@ public class Main extends JFrame {
         lblImagen.setPreferredSize(new Dimension(160, 180));
 
         lblMuestras = new JLabel("", SwingConstants.CENTER);
-        lblMuestras.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 18));
+        lblMuestras.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         lblMuestras.setBorder(new EmptyBorder(8, 0, 0, 0));
 
         cardImg.add(lblImagen,   BorderLayout.CENTER);
