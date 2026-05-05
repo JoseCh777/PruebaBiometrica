@@ -97,7 +97,7 @@ public class Main extends JFrame {
     // ── Procesamiento de muestra ──────────────────────────────────────────
     private void procesarMuestra(DPFPSample muestra) {
         mostrarImagen(muestra);
-        if (capturandoEnrollment)   procesarEnrollment(muestra);
+        if (capturandoEnrollment)        procesarEnrollment(muestra);
         else if (capturandoVerificacion) procesarVerificacion(muestra);
     }
 
@@ -112,7 +112,9 @@ public class Main extends JFrame {
         capturandoEnrollment   = true;
         capturandoVerificacion = false;
         actualizarIndicadores();
-        String accion = (usuarioEnEdicion != null) ? "Editando «" + usuarioEnEdicion.getNombre() + "»" : "Creando usuario";
+        String accion = (usuarioEnEdicion != null)
+                ? "Editando «" + usuarioEnEdicion.getNombre() + "»"
+                : "Creando usuario";
         setEstado(" " + accion + " — coloca el dedo "
                 + enrollment.getFeaturesNeeded() + " veces...", ACCENT);
     }
@@ -134,17 +136,17 @@ public class Main extends JFrame {
                 return;
             }
 
-            // ── Enrollment completo ──
-            DPFPTemplate template = enrollment.getTemplate();
+            // ── Enrollment completo — serializar a bytes ──
+            byte[] templateBytes = enrollment.getTemplate().serialize();
             String nombre = txtNombre.getText().trim();
 
             if (usuarioEnEdicion != null) {
                 usuarioEnEdicion.setNombre(nombre);
-                usuarioEnEdicion.setTemplate(template);
+                usuarioEnEdicion.setTemplateBytes(templateBytes);
                 setEstado("Usuario actualizado: " + nombre, ACCENT2);
                 usuarioEnEdicion = null;
             } else {
-                usuarios.add(new Usuario(contadorId++, nombre, template));
+                usuarios.add(new Usuario(contadorId++, nombre, templateBytes));
                 setEstado("Usuario creado: " + nombre, ACCENT2);
             }
 
@@ -181,8 +183,11 @@ public class Main extends JFrame {
                     DPFPGlobal.getVerificationFactory().createVerification();
 
             for (Usuario u : usuarios) {
-                DPFPVerificationResult res = verificador.verify(features, u.getTemplate());
-                if (res.isVerified()) {                          // ← método correcto
+                DPFPTemplate t = DPFPGlobal.getTemplateFactory().createTemplate();
+                t.deserialize(u.getTemplateBytes());
+
+                DPFPVerificationResult res = verificador.verify(features, t);
+                if (res.isVerified()) {
                     setEstado("¡Bienvenido, " + u.getNombre()
                             + "!  FAR: " + res.getFalseAcceptRate(), ACCENT2);
                     capturandoVerificacion = false;
@@ -237,7 +242,6 @@ public class Main extends JFrame {
 
     private void mostrarImagen(DPFPSample muestra) {
         try {
-            // getSampleConversionFactory()
             DPFPSampleConversion conv = DPFPGlobal.getSampleConversionFactory();
             Image img = conv.createImage(muestra);
             Image scaled = img.getScaledInstance(160, 180, Image.SCALE_SMOOTH);
@@ -417,7 +421,6 @@ public class Main extends JFrame {
         derecha.add(btnEliminar);
         add(derecha, BorderLayout.EAST);
 
-        // Cerrar lector al salir
         addWindowListener(new WindowAdapter() {
             @Override public void windowClosing(WindowEvent e) {
                 if (lector != null) try { lector.stopCapture(); } catch (Exception ignored) {}
