@@ -10,6 +10,8 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.ObjectOutputStream;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +28,9 @@ public class Main extends JFrame {
     private static final Color TEXT_MAIN = new Color(230, 230, 240);
     private static final Color TEXT_MUTED= new Color(130, 130, 150);
     private static final Color BORDER_C  = new Color(55, 55, 75);
+
+    // ── Archivo persistencia ──────────────────────────────────────────────
+    private static final String ARCHIVO_DATOS = "usuarios.dat";
 
     // ── SDK ───────────────────────────────────────────────────────────────
     private DPFPCapture    lector;
@@ -51,6 +56,7 @@ public class Main extends JFrame {
         configurarVentana();
         construirUI();
         inicializarSDK();
+        cargarUsuarios();
     }
 
     // ── Ventana ───────────────────────────────────────────────────────────
@@ -91,6 +97,33 @@ public class Main extends JFrame {
 
         } catch (Exception ex) {
             setEstado("Error al iniciar lector: " + ex.getMessage(), DANGER);
+        }
+    }
+
+    // ── Persistencia ──────────────────────────────────────────────────────
+    private void guardarUsuarios() {
+        try (ObjectOutputStream oos = new ObjectOutputStream(
+                new java.io.FileOutputStream(ARCHIVO_DATOS))) {
+            oos.writeObject(contadorId);
+            oos.writeObject(new ArrayList<>(usuarios));
+        } catch (Exception e) {
+            setEstado("Error al guardar datos: " + e.getMessage(), DANGER);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void cargarUsuarios() {
+        java.io.File f = new java.io.File(ARCHIVO_DATOS);
+        if (!f.exists()) return;
+        try (ObjectInputStream ois = new ObjectInputStream(
+                new java.io.FileInputStream(f))) {
+            contadorId = (int) ois.readObject();
+            List<Usuario> cargados = (List<Usuario>) ois.readObject();
+            usuarios.addAll(cargados);
+            actualizarLista();
+            setEstado("Usuarios cargados: " + usuarios.size(), TEXT_MUTED);
+        } catch (Exception e) {
+            setEstado("Error al cargar datos: " + e.getMessage(), DANGER);
         }
     }
 
@@ -136,7 +169,7 @@ public class Main extends JFrame {
                 return;
             }
 
-            // ── Enrollment completo — serializar a bytes ──
+            // ── Enrollment completo ──
             byte[] templateBytes = enrollment.getTemplate().serialize();
             String nombre = txtNombre.getText().trim();
 
@@ -153,6 +186,7 @@ public class Main extends JFrame {
             capturandoEnrollment = false;
             txtNombre.setText("");
             lblMuestras.setText("");
+            guardarUsuarios();
             actualizarLista();
 
         } catch (DPFPImageQualityException e) {
@@ -224,6 +258,7 @@ public class Main extends JFrame {
                 "Confirmar", JOptionPane.YES_NO_OPTION);
         if (ok == JOptionPane.YES_OPTION) {
             usuarios.remove(idx);
+            guardarUsuarios();
             actualizarLista();
             setEstado("[X] Usuario eliminado: " + u.getNombre(), TEXT_MUTED);
         }
