@@ -1,4 +1,4 @@
-package org.example;
+﻿package org.example;
 
 import com.digitalpersona.onetouch.*;
 import com.digitalpersona.onetouch.capture.*;
