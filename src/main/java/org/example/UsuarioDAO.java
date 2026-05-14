@@ -8,12 +8,17 @@ import java.util.List;
 public class UsuarioDAO {
 
     // ── Configuración Oracle ──────────────────────────────────────────────
-    private static final String URL      = "jdbc:oracle:thin:@localhost:1521:XE";
+    private static final String URL      = "jdbc:oracle:thin:@localhost:1521/XEPDB1";
     private static final String USER     = "huella";
     private static final String PASSWORD = "huella123";
 
     // ── Conexión ──────────────────────────────────────────────────────────
     private Connection getConexion() throws SQLException {
+        try {
+            Class.forName("oracle.jdbc.OracleDriver");
+        } catch (ClassNotFoundException e) {
+            throw new SQLException("Driver Oracle no encontrado: " + e.getMessage());
+        }
         return DriverManager.getConnection(URL, USER, PASSWORD);
     }
 
