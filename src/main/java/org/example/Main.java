@@ -79,10 +79,10 @@ public class Main extends JFrame {
     private void verificarConexionOracle() {
         usarOracle = usuarioDAO.probarConexion();
         if (usarOracle) {
-            lblModoBD.setText("🟢 Oracle conectado");
+            lblModoBD.setText("Oracle conectado");
             lblModoBD.setForeground(ACCENT2);
         } else {
-            lblModoBD.setText("🔴 Sin BD — modo local");
+            lblModoBD.setText("Sin BD — modo local");
             lblModoBD.setForeground(WARN);
         }
     }
@@ -113,11 +113,11 @@ public class Main extends JFrame {
             lector.addReaderStatusListener(new DPFPReaderStatusAdapter() {
                 @Override
                 public void readerConnected(DPFPReaderStatusEvent e) {
-                    SwingUtilities.invokeLater(() -> setEstado("✅ Lector conectado", ACCENT2));
+                    SwingUtilities.invokeLater(() -> setEstado("Lector conectado", ACCENT2));
                 }
                 @Override
                 public void readerDisconnected(DPFPReaderStatusEvent e) {
-                    SwingUtilities.invokeLater(() -> setEstado("❌ Lector desconectado", DANGER));
+                    SwingUtilities.invokeLater(() -> setEstado("Lector desconectado", DANGER));
                 }
             });
 
@@ -148,7 +148,7 @@ public class Main extends JFrame {
         capturandoEnrollment   = true;
         capturandoVerificacion = false;
         actualizarIndicadores();
-        setEstado("👆 Creando «" + pendienteNombre + " " + pendienteApellido
+        setEstado("Creando «" + pendienteNombre + " " + pendienteApellido
                 + "» — coloca el dedo " + enrollment.getFeaturesNeeded() + " veces...", ACCENT);
     }
 
@@ -266,14 +266,14 @@ public class Main extends JFrame {
     private void procesarEnrollment(DPFPSample muestra) {
         try {
             DPFPFeatureSet features = extraerFeatures(muestra, DPFPDataPurpose.DATA_PURPOSE_ENROLLMENT);
-            if (features == null) { setEstado("⚠ Calidad baja, intenta de nuevo", WARN); return; }
+            if (features == null) { setEstado("Calidad baja, intenta de nuevo", WARN); return; }
 
             enrollment.addFeatures(features);
             actualizarIndicadores();
 
             int faltantes = enrollment.getFeaturesNeeded();
             if (faltantes > 0) {
-                setEstado("👆 Coloca el dedo " + faltantes + " vez(ces) más...", ACCENT);
+                setEstado("Coloca el dedo " + faltantes + " vez(ces) más...", ACCENT);
                 return;
             }
 
@@ -288,7 +288,7 @@ public class Main extends JFrame {
                 usuarioEnEdicion.setTemplateBytes(templateBytes);
 
                 if (usarOracle) usuarioDAO.actualizar(usuarioEnEdicion);
-                setEstado("✅ Usuario actualizado: " + usuarioEnEdicion.getNombreCompleto(), ACCENT2);
+                setEstado("Usuario actualizado: " + usuarioEnEdicion.getNombreCompleto(), ACCENT2);
                 usuarioEnEdicion = null;
             } else {
                 // Crear nuevo
@@ -302,7 +302,7 @@ public class Main extends JFrame {
                 );
                 usuarios.add(nuevo);
                 if (usarOracle) usuarioDAO.insertar(nuevo);
-                setEstado("✅ Usuario creado: " + nuevo.getNombreCompleto(), ACCENT2);
+                setEstado("Usuario creado: " + nuevo.getNombreCompleto(), ACCENT2);
             }
 
             capturandoEnrollment = false;
@@ -310,9 +310,9 @@ public class Main extends JFrame {
             actualizarLista();
 
         } catch (DPFPImageQualityException e) {
-            setEstado("⚠ Imagen de baja calidad, intenta de nuevo", WARN);
+            setEstado("Imagen de baja calidad, intenta de nuevo", WARN);
         } catch (Exception e) {
-            setEstado("❌ Error: " + e.getMessage(), DANGER);
+            setEstado("Error: " + e.getMessage(), DANGER);
             capturandoEnrollment = false;
         }
     }
@@ -322,13 +322,13 @@ public class Main extends JFrame {
         if (usuarios.isEmpty()) { error("No hay usuarios registrados."); return; }
         capturandoVerificacion = true;
         capturandoEnrollment   = false;
-        setEstado("👆 Coloca el dedo para verificar...", ACCENT);
+        setEstado("Coloca el dedo para verificar...", ACCENT);
     }
 
     private void procesarVerificacion(DPFPSample muestra) {
         try {
             DPFPFeatureSet features = extraerFeatures(muestra, DPFPDataPurpose.DATA_PURPOSE_VERIFICATION);
-            if (features == null) { setEstado("⚠ No se pudo leer la huella", WARN); return; }
+            if (features == null) { setEstado("No se pudo leer la huella", WARN); return; }
 
             DPFPVerification verificador = DPFPGlobal.getVerificationFactory().createVerification();
 
@@ -338,7 +338,7 @@ public class Main extends JFrame {
 
                 DPFPVerificationResult res = verificador.verify(features, t);
                 if (res.isVerified()) {
-                    setEstado("✅ ¡Bienvenido, " + u.getNombreCompleto()
+                    setEstado("¡Bienvenido, " + u.getNombreCompleto()
                             + "! | CC: " + u.getNumeroCedula()
                             + " | FAR: " + res.getFalseAcceptRate(), ACCENT2);
                     capturandoVerificacion = false;
@@ -348,11 +348,11 @@ public class Main extends JFrame {
                 }
             }
 
-            setEstado("❌ Huella no reconocida", DANGER);
+            setEstado("Huella no reconocida", DANGER);
             capturandoVerificacion = false;
 
         } catch (Exception e) {
-            setEstado("❌ Error: " + e.getMessage(), DANGER);
+            setEstado("Error: " + e.getMessage(), DANGER);
             capturandoVerificacion = false;
         }
     }
@@ -369,7 +369,7 @@ public class Main extends JFrame {
             if (usarOracle) usuarioDAO.eliminar(u.getNumeroCedula());
             usuarios.remove(idx);
             actualizarLista();
-            setEstado("🗑 Usuario eliminado: " + u.getNombreCompleto(), TEXT_MUTED);
+            setEstado("Usuario eliminado: " + u.getNombreCompleto(), TEXT_MUTED);
         }
     }
 
@@ -382,7 +382,7 @@ public class Main extends JFrame {
         dlg.getContentPane().setBackground(BG_DARK);
         dlg.setLayout(new BorderLayout());
 
-        JLabel lblTit = new JLabel("  ✅ Identidad Verificada");
+        JLabel lblTit = new JLabel(" Identidad Verificada");
         lblTit.setFont(new Font("Segoe UI", Font.BOLD, 15));
         lblTit.setForeground(ACCENT2);
         lblTit.setBackground(BG_PANEL);
@@ -398,7 +398,7 @@ public class Main extends JFrame {
         info.add(fila("N° Cédula:",       u.getNumeroCedula()));
         info.add(fila("Teléfono:",         u.getTelefono()));
         info.add(fila("ID interno:",       String.valueOf(u.getId())));
-        info.add(fila("Huella:",           u.getTemplateBytes() != null ? "✅ Registrada" : "❌ Sin huella"));
+        info.add(fila("Huella:",           u.getTemplateBytes() != null ? "Registrada" : "Sin huella"));
 
         dlg.add(info, BorderLayout.CENTER);
 
@@ -613,11 +613,11 @@ public class Main extends JFrame {
         derecha.setBorder(new EmptyBorder(20, 10, 20, 20));
         derecha.setPreferredSize(new Dimension(165, 0));
 
-        JButton btnCrear     = btn("➕  Crear",     ACCENT2);
-        JButton btnVerificar = btn("🔍  Verificar", ACCENT);
-        JButton btnEditar    = btn("✏  Editar",    WARN);
-        JButton btnEliminar  = btn("🗑  Eliminar",  DANGER);
-        JButton btnDetalle   = btn("👁  Detalle",   new Color(180, 140, 255));
+        JButton btnCrear     = btn("  Crear",     ACCENT2);
+        JButton btnVerificar = btn("  Verificar", ACCENT);
+        JButton btnEditar    = btn("  Editar",    WARN);
+        JButton btnEliminar  = btn("  Eliminar",  DANGER);
+        JButton btnDetalle   = btn("  Detalle",   new Color(180, 140, 255));
 
         btnCrear    .addActionListener(e -> iniciarCrear());
         btnVerificar.addActionListener(e -> iniciarVerificacion());
